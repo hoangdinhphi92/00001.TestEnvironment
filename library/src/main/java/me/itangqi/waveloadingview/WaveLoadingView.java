@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -48,6 +49,7 @@ public class WaveLoadingView extends View {
     private static final float DEFAULT_WAVE_SHIFT_RATIO = 0.0f;
     private static final int DEFAULT_WAVE_PROGRESS_VALUE = 50;
     private static final int DEFAULT_WAVE_COLOR = Color.parseColor("#212121");
+    private static final int DEFAULT_GRADIAN_COLOR = Color.parseColor("#212121");
     private static final int DEFAULT_WAVE_BACKGROUND_COLOR = Color.parseColor("#00000000");
     private static final int DEFAULT_TITLE_COLOR = Color.parseColor("#212121");
     private static final int DEFAULT_STROKE_COLOR = Color.TRANSPARENT;
@@ -82,6 +84,7 @@ public class WaveLoadingView extends View {
     private float mAmplitudeRatio;
     private int mWaveBgColor;
     private int mWaveColor;
+    private int mGradianColor;
     private int mShapeType;
     private int mTriangleDirection;
     private int mRoundRectangleXY;
@@ -158,10 +161,14 @@ public class WaveLoadingView extends View {
 
         // Init Wave
         mWaveColor = attributes.getColor(R.styleable.WaveLoadingView_wlv_waveColor, DEFAULT_WAVE_COLOR);
+
         mWaveBgColor = attributes.getColor(R.styleable.WaveLoadingView_wlv_wave_background_Color, DEFAULT_WAVE_BACKGROUND_COLOR);
 
         mWaveBgPaint.setColor(mWaveBgColor);
 
+
+        //init GradianColor
+        mGradianColor=255255255;
         // Init AmplitudeRatio
         float amplitudeRatioAttr = attributes.getFloat(R.styleable.WaveLoadingView_wlv_waveAmplitude, DEFAULT_AMPLITUDE_VALUE) / 1000;
         mAmplitudeRatio = (amplitudeRatioAttr > DEFAULT_AMPLITUDE_RATIO) ? DEFAULT_AMPLITUDE_RATIO : amplitudeRatioAttr;
@@ -398,6 +405,7 @@ public class WaveLoadingView extends View {
                 Paint wavePaint = new Paint();
                 wavePaint.setStrokeWidth(2);
                 wavePaint.setAntiAlias(true);
+                ///Gradian
 
                 // Draw default waves into the bitmap.
                 // y=Asin(ωx+φ)+h
@@ -413,7 +421,8 @@ public class WaveLoadingView extends View {
                     canvas.drawLine(beginX, beginY, beginX, endY, wavePaint);
                     waveY[beginX] = beginY;
                 }
-
+                //draw gradian
+                wavePaint.setShader(new LinearGradient(0, 0, 0, getHeight(), mGradianColor, mWaveColor, Shader.TileMode.MIRROR));
                 wavePaint.setColor(mWaveColor);
                 final int wave2Shift = (int) (defaultWaveLength / 4);
                 for (int beginX = 0; beginX < endX; beginX++) {
@@ -496,8 +505,11 @@ public class WaveLoadingView extends View {
 
     public void setWaveColor(int color) {
         mWaveColor = color;
-        // Need to recreate shader when color changed ?
-//        mWaveShader = null;
+        updateWaveShader();
+        invalidate();
+    }
+    public void setGradianColor(int color) {
+      this.mGradianColor=color;
         updateWaveShader();
         invalidate();
     }
